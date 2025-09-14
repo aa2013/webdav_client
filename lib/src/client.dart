@@ -72,8 +72,10 @@ class Client {
   }
 
   /// Read a single files properties
-  Future<File> readProps(String path, [CancelToken? cancelToken]) async {
-    path = fixSlashes(path);
+  Future<File> readProps(String path,{ bool isFile = false, CancelToken? cancelToken}) async {
+    //如果是文件，不要添加尾 '/', 因为一些服务器可能不支持文件带 尾 '/' 的props请求，例如群晖
+    //If it is a file, do not add a trailing '/', because some servers (such as Synology) may not support PROPFIND requests for files with a trailing '/'.
+    path = isFile ? fixSlashStart(path) : fixSlashes(path);
     var resp = await this
         .c
         .wdPropfind(this, path, true, fileXmlStr, cancelToken: cancelToken);
